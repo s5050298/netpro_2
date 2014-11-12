@@ -1,0 +1,220 @@
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import javax.swing.JButton;
+import javax.swing.JEditorPane;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
+
+public class Web {
+
+	private JFrame fr;
+	private JTextField t,t1;
+	private JEditorPane p,p1;
+	private JButton butt;
+	private JScrollPane s,s1,s2,s3;
+	private JTextArea ta, ta1;
+	//private Stack<String> stack = new Stack<String>();
+
+	public static void main(String[] args) {
+		new Web();
+	}
+
+	public Web() {
+		fr = new JFrame("Natthawud Thuansad s5050298@kmitl.ac.th - Java Web Browser (Network Programming Class Assignment#2)");
+		fr.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		fr.setSize(1000,600);
+
+		t = new JTextField();
+		
+
+		t1 = new JTextField();
+
+		butt = new JButton("Go go go!");
+		butt.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				String url = t.getText().toLowerCase();
+				String url1 = t1.getText().toLowerCase();
+				if(!url.startsWith("http://") && !url.startsWith("https://"))
+					url = "http://" + url;
+				if(!url1.startsWith("http://") && !url1.startsWith("https://"))
+					url1 = "http://" + url1;
+				setPage(url);
+				setPage2(url1);
+			}
+		});
+
+
+		p = new JEditorPane();
+		p.setEditable(false);
+		p.addHyperlinkListener(new HyperlinkListener() {
+			@Override
+			public void hyperlinkUpdate(HyperlinkEvent event) {
+				if(event.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+					t.setText(event.getURL().toString());
+				}
+			}
+		});
+
+		p1 = new JEditorPane();
+		p1.setEditable(false);
+		p1.addHyperlinkListener(new HyperlinkListener() {
+			@Override
+			public void hyperlinkUpdate(HyperlinkEvent event) {
+				if(event.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+					t1.setText(event.getURL().toString());
+				}
+			}
+		});
+
+		ta = new JTextArea();
+		ta.setLineWrap(true);
+		ta.setEditable(false);
+		ta.setWrapStyleWord(true);
+
+		ta1 = new JTextArea();
+		ta1.setLineWrap(true);
+		ta1.setEditable(false);
+		ta1.setWrapStyleWord(true);
+
+
+		s = new JScrollPane(p);
+		s.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		s.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		s1 = new JScrollPane(p1);
+		s1.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		s1.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		s2 = new JScrollPane(ta);
+		s2.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		s2.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		s3 = new JScrollPane(ta1);
+		s3.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		s3.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);		
+		
+		
+		fr.add(butt, BorderLayout.SOUTH);
+		
+		JLabel la= new JLabel("URL :");
+		JPanel j1 = new JPanel(new BorderLayout());
+		j1.add(t, BorderLayout.SOUTH);
+		j1.add(la, BorderLayout.WEST);
+
+		JLabel la1 = new JLabel("URL :");
+		JPanel j2 = new JPanel(new BorderLayout());
+		j2.add(t1, BorderLayout.SOUTH);
+		j2.add(la1, BorderLayout.WEST);
+
+		JPanel j3 = new JPanel(new BorderLayout());
+		j3.add(j1, BorderLayout.NORTH);
+		j3.add(s, BorderLayout.CENTER);
+
+		JPanel j4 = new JPanel(new BorderLayout());
+		j4.add(j2, BorderLayout.NORTH);
+		j4.add(s1, BorderLayout.CENTER);
+
+		JPanel j5 = new JPanel(new BorderLayout());
+		j5.add(j3, BorderLayout.WEST);
+		j5.add(j4, BorderLayout.EAST);
+
+		JPanel j6 = new JPanel(new BorderLayout());
+		j6.add(s2, BorderLayout.WEST);
+		j6.add(s3, BorderLayout.EAST);
+
+		fr.add(j5, BorderLayout.CENTER);
+		fr.add(j6, BorderLayout.NORTH);
+
+		fr.setVisible(true);
+
+		setSize();
+
+	}
+
+	private void setPage(final String url) {
+		setText(ta, "THREAD A", "Start");
+		Thread t = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					setText(ta, "THREAD A", "GET URL = "+url);
+					printHeader(ta1, "THREAD A", url);
+					p.setPage(url);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				setText(ta, "THREAD A", "Finished");
+			}
+		});
+		t.start();
+	}
+
+	private void setPage2(final String url) {
+		setText(ta, "THREAD B", "Start");
+		Thread t = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					setText(ta, "THREAD B", "GET URL = "+url);
+					printHeader(ta1, "THREAD B", url);
+					p1.setPage(url);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				setText(ta, "THREAD B", "Finished");
+			}
+		});
+		t.start();
+	}
+
+	private void setText(JTextArea j, String name, String m) {
+		j.append(name + " : " + m + "\r\n");
+		j.setCaretPosition(j.getText().length());
+	}
+	
+	private void setSize() {
+		Dimension d1 = fr.getSize();
+		Dimension d2 = new Dimension(d1.width/2, d1.height/3);
+		s.setPreferredSize(d2);
+		s1.setPreferredSize(d2);
+		s2.setPreferredSize(d2);
+		s3.setPreferredSize(d2);
+	}
+	
+	private void printHeader(JTextArea j, String name, String url) {
+		try {
+			URL obj = new URL(url);
+			URLConnection conn = obj.openConnection();
+		    Map<String, List<String>> map = conn.getHeaderFields();
+		    for(Entry<String, List<String>> a : map.entrySet()) {
+		    	setText(j, name, a.getKey() + ": " + a.getValue());
+		    }
+		    List<String> contentLength = map.get("Content-Length");
+            if (contentLength == null) {
+            	setText(j, name, "'Content-Length' doesn't present in Header!");
+            } else {
+                for (String header : contentLength) {
+                	setText(j, name, "Content-Lenght: " + header);
+                }
+            }
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+}
